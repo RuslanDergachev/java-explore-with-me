@@ -1,6 +1,5 @@
 package ru.practicum.service.services.allclients;
 
-import org.springframework.stereotype.Service;
 import ru.practicum.service.models.user.dto.UserDto;
 import ru.practicum.service.models.user.entity.User;
 

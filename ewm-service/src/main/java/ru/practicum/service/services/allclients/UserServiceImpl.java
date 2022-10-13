@@ -1,19 +1,17 @@
 package ru.practicum.service.services.allclients;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.service.repositories.UserRepository;
-import ru.practicum.service.models.user.dto.UserDto;
-import ru.practicum.service.mappers.UserMapper;
-import ru.practicum.service.models.user.entity.User;
 import ru.practicum.service.exception.NotFoundException;
 import ru.practicum.service.exception.ValidationException;
+import ru.practicum.service.mappers.UserMapper;
+import ru.practicum.service.models.user.dto.UserDto;
+import ru.practicum.service.models.user.entity.User;
+import ru.practicum.service.repositories.UserRepository;
 
 import java.util.List;
 
 @Slf4j
-@Service
 @Transactional
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
