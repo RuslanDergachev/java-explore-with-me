@@ -3,13 +3,15 @@ package ru.practicum.service.models.event.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Data;
+import ru.practicum.service.models.comments.dto.CommentDto;
 import ru.practicum.service.models.eventcategory.entity.EventCategory;
 import ru.practicum.service.models.user.dto.UserShortDto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
- * The class describes a brief structure of the event entity.
+ * The class describes a brief structure of the eventShortDto entity.
  */
 @Data
 @Builder

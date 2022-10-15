@@ -1,5 +1,6 @@
 package ru.practicum.service.services.registeredclients;
 
+import ru.practicum.service.models.comments.dto.CommentDto;
 import ru.practicum.service.models.event.dto.EventDto;
 import ru.practicum.service.models.event.dto.EventFullDto;
 import ru.practicum.service.models.event.dto.EventShortDto;
@@ -101,4 +102,21 @@ public interface UserEventService {
      * @return ParticipationRequestDto object cancelled request
      */
     ParticipationRequestDto cancelRequest(long userId, long requestId);
+
+    /**
+     * The method creates a comment on the event
+     * @param userId user id
+     * @param eventId event id
+     * @param comment the text of the comment to the event
+     * @return CommentDto object comment
+     */
+    CommentDto createComment(long userId, long eventId, CommentDto comment);
+
+    /**
+     * The method removes the comment to the event
+     * @param userId user id
+     * @param eventId event id
+     * @param commentId comment id
+     */
+    void deleteComment(long userId, long eventId, long commentId);
 }

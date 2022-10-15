@@ -1,13 +1,16 @@
 package ru.practicum.service.mappers;
 
 import org.springframework.stereotype.Component;
+import ru.practicum.service.models.comments.dto.CommentDto;
+import ru.practicum.service.models.comments.entity.Comment;
 import ru.practicum.service.models.event.dto.EventDto;
 import ru.practicum.service.models.event.dto.EventFullDto;
 import ru.practicum.service.models.event.dto.EventShortDto;
 import ru.practicum.service.models.event.dto.UpdateEventRequest;
-import ru.practicum.service.webclient.EventClient;
 import ru.practicum.service.models.event.entity.Event;
 import ru.practicum.service.models.locations.dto.LocationDto;
+import ru.practicum.service.repositories.CommentRepository;
+import ru.practicum.service.webclient.EventClient;
 import ru.practicum.statservice.models.ViewsStatsDto;
 
 import java.time.LocalDateTime;
@@ -20,9 +23,13 @@ import java.util.stream.Collectors;
 public class EventMapper {
 
     private final EventClient eventClient;
+    private final CommentMapper commentMapper;
+    private final CommentRepository commentRepository;
 
-    public EventMapper(EventClient eventClient) {
+    public EventMapper(EventClient eventClient, CommentMapper commentMapper, CommentRepository commentRepository) {
         this.eventClient = eventClient;
+        this.commentMapper = commentMapper;
+        this.commentRepository = commentRepository;
     }
 
     public static EventDto toEventDto(Event event) {
@@ -83,10 +90,20 @@ public class EventMapper {
                 .state(event.getState())
                 .title(event.getTitle())
                 .views(event.getViews())
+                .comments(commentDtoList(commentRepository.getAllByEventId(event.getId())))
                 .build();
         setViewsEventFullDto(event, eventFullDto);
         return eventFullDto;
     }
+
+    private CommentDto toCommentDto(Comment comment) {
+        return commentMapper.toCommentDto(comment);
+    }
+
+    private List<CommentDto> commentDtoList(List<Comment> comments) {
+        return comments.stream().map(this::toCommentDto).collect(Collectors.toList());
+    }
+
 
     public EventShortDto toEventShortDto(Event event) {
         EventShortDto eventShortDto = EventShortDto.builder()

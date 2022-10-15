@@ -6,12 +6,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import ru.practicum.service.models.comments.dto.CommentDto;
 import ru.practicum.service.models.event.entity.EventStatus;
 import ru.practicum.service.models.eventcategory.entity.EventCategory;
 import ru.practicum.service.models.locations.dto.LocationDto;
 import ru.practicum.service.models.user.entity.User;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * The class describes the complete structure of the event entity.
@@ -44,4 +46,5 @@ public class EventFullDto {
     private EventStatus state;
     private String title;
     private Long views;
+    private List<CommentDto> comments;
 }

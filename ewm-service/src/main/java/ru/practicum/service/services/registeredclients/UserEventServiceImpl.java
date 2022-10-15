@@ -6,10 +6,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.service.repositories.CategoriesRepository;
-import ru.practicum.service.repositories.EventRepository;
-import ru.practicum.service.repositories.ParticipationRepository;
-import ru.practicum.service.repositories.UserRepository;
+import ru.practicum.service.exception.ForbiddenException;
+import ru.practicum.service.mappers.CommentMapper;
+import ru.practicum.service.models.comments.dto.CommentDto;
+import ru.practicum.service.models.comments.entity.Comment;
+import ru.practicum.service.repositories.*;
 import ru.practicum.service.datesetter.DateTimeSetter;
 import ru.practicum.service.models.event.dto.EventDto;
 import ru.practicum.service.models.event.dto.EventFullDto;
@@ -40,15 +41,20 @@ public class UserEventServiceImpl implements UserEventService {
     private final CategoriesRepository categoriesRepository;
     private final ParticipationRepository participationRepository;
     private final EventMapper eventMapper;
+    private final CommentMapper commentMapper;
+    private final CommentRepository commentRepository;
 
     public UserEventServiceImpl(EventRepository eventRepository, UserRepository userRepository,
                                 CategoriesRepository categoriesRepository,
-                                ParticipationRepository participationRepository, EventMapper eventMapper) {
+                                ParticipationRepository participationRepository, EventMapper eventMapper,
+                                CommentMapper commentMapper, CommentRepository commentRepository) {
         this.eventRepository = eventRepository;
         this.userRepository = userRepository;
         this.categoriesRepository = categoriesRepository;
         this.participationRepository = participationRepository;
         this.eventMapper = eventMapper;
+        this.commentMapper = commentMapper;
+        this.commentRepository = commentRepository;
     }
 
     @Override
@@ -238,6 +244,35 @@ public class UserEventServiceImpl implements UserEventService {
             return RequestMapper.toParticipationRequestDto(participationRepository.saveAndFlush(participation));
         }
         throw new ValidationException("Отменить возможно только свой запрос на участие в событии");
+    }
+
+    @Override
+    public CommentDto createComment(long userId, long eventId, CommentDto commentDto) {
+        Event event = eventRepository.getEventById(eventId);
+        Validation.validationEvent(event, eventId);
+        if (LocalDateTime.now().plusHours(1).isAfter(event.getEventDate())) {
+            throw new ForbiddenException(String
+                    .format("До начала события ID = %d менее 1 часа, редактирование запрещено", eventId));
+        }
+        if (event.getState() != EventStatus.PUBLISHED) {
+            throw new ForbiddenException(String
+                    .format("Событие ID = %d не опубликовано, невозможно оставить комментарий", eventId));
+        }
+        Comment comment = commentMapper.toComment(commentDto);
+        comment.setAuthor(userRepository.getUserById(userId));
+        comment.setEvent(eventRepository.getEventById(eventId));
+        comment.setCreated(DateTimeSetter.setDateTime());
+        return commentMapper.toCommentDto(commentRepository.saveAndFlush(comment));
+    }
+
+    @Override
+    public void deleteComment(long userId, long eventId, long commentId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(()->new NotFoundException("Комментарий не найден"));
+        if(comment.getAuthor().getId() != userId){
+            throw new ValidationException("Пользователь не может удалить чужой комментарий");
+        }
+        commentRepository.deleteById(commentId);
     }
 
     public void validateUserById(long userId) {

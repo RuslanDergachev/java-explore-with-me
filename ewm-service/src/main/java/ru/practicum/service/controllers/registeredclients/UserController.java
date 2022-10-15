@@ -5,12 +5,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.service.models.comments.dto.CommentDto;
 import ru.practicum.service.models.event.dto.EventDto;
 import ru.practicum.service.models.event.dto.EventFullDto;
 import ru.practicum.service.models.event.dto.EventShortDto;
 import ru.practicum.service.models.participation.dto.ParticipationRequestDto;
 import ru.practicum.service.services.registeredclients.UserEventService;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import javax.websocket.server.PathParam;
@@ -179,5 +181,19 @@ public class UserController {
                                                  @Positive @PathVariable long requestId) {
         log.info("Отмена заявки: {}, на участие в событии {}", requestId, userId);
         return userEventService.cancelRequest(userId, requestId);
+    }
+
+    @PostMapping("/{userId}/events/{eventId}/comment")
+    public CommentDto createComment(@PathVariable long userId, @PathVariable long eventId,
+                                    @Valid @RequestBody CommentDto comment) {
+        log.info("Добавлен комментарий к событию: {}", eventId);
+        return userEventService.createComment(userId, eventId, comment);
+    }
+
+    @DeleteMapping("/{userId}/events/{eventId}/comment/{commentId}")
+    public void deleteComment(@PathVariable long userId, @PathVariable long eventId,
+                              @PathVariable long commentId) {
+        log.info("Удален комментарий к событию: {}", eventId);
+        userEventService.deleteComment(userId, eventId, commentId);
     }
 }
