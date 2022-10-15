@@ -268,7 +268,8 @@ public class UserEventServiceImpl implements UserEventService {
     @Override
     public void deleteComment(long userId, long eventId, long commentId) {
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(()->new NotFoundException("Комментарий не найден"));
+                .orElseThrow(()->new NotFoundException(String
+                        .format("Комментарий ID = %d не найден", commentId)));
         if(comment.getAuthor().getId() != userId){
             throw new ValidationException("Пользователь не может удалить чужой комментарий");
         }
